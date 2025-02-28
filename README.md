@@ -26,7 +26,7 @@ pip install -r requirements.txt
 
 ## GoogleGemini API
 1. Set up a [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key) account and generate an API key. 
-2. create a `.env` file in the `django_project/project_230/dictionary` directory 
+2. create a `.env` file in the `frontend/dictionary` directory 
 3. Set the `GOOGLE_API_KEY` environment variable to their API key.
 
 > note the `GOOGLE_API_KEY` must be in the `.env` file to use the app. and the API key should also be in "string" format.
