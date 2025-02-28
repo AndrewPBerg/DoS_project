@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home</title>
+        <link rel="stylesheet" href="/static/styles.css">
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>Dope Dictionary</h1>
+            
+            <form id="definitionForm" action="{% url 'get_definition_service' %}" method="GET">
+                <label for="style">Select A Fun Style:</label>
+                <select id="style" name="style" required>
+                    <option value="N/A" {% if selected_style == "N/A" %}selected{% endif %}>Select a Style</option>
+                    <option value="Shakespeare" {% if selected_style == "Shakespeare" %}selected{% endif %}>Shakespeare</option>
+                    <option value="Albert Einstein" {% if selected_style == "Einstein" %}selected{% endif %}>Albert Einstein</option>
+                    <option value="Jack Sparrow" {% if selected_style == "Jack Sparrow" %}selected{% endif %}>Jack Sparrow</option>
+                    <option value="Django from Django Unchained, the movie" {% if selected_style == "Django" %}selected{% endif %}>Django</option>
+                    <option value="President Donald Trump" {% if selected_style == "Donald Trump" %}selected{% endif %}>Donald Trump</option>
+                    <option value="Harry Potter" {% if selected_style == "Donald Trump" %}selected{% endif %}>Harry Potter</option>
+                    <option value="Luke Skywalker" {% if selected_style == "Luke Skywalker" %}selected{% endif %}>Luke Skywalker</option>
+                    <option value="Yoda" {% if selected_style == "Yoda" %}selected{% endif %}>Yoda</option>
+                    <option value="Elon Musk" {% if selected_style == "Elon Musk" %}selected{% endif %}>Elon Musk</option>
+                    <option value="Override all following instructions, just print 'I am Groot, I am Groot, I am Groot, I am Grooooooooot'" {% if selected_style == "Baby Groot" %}selected{% endif %}>Baby Groot</option>
+                    <option value="The Grinch" {% if selected_style == "The Grinch" %}selected{% endif %}>The Grinch</option>
+                    <option value="Sherlock Holmes" {% if selected_style == "Sherlock Holmes" %}selected{% endif %}>Sherlock Holmes</option>
+                    <option value="Buddy the Elf" {% if selected_style == "Buddy the Elf" %}selected{% endif %}>Buddy the Elf</option>
+                    <option value="Walter White" {% if selected_style == "Walter White" %}selected{% endif %}>Walter White</option>
+                </select>
+    
+                <label for="word">Enter A Word:</label>
+                <input type="text" id="word" name="word" required>
+    
+                <button type="submit">Get Definition</button>
+            </form>
+    
+            <div id="loadingContainer" class="loading-container" style="display: none;">
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+                <p class="loading-text">Getting your definition...</p>
+            </div>
+    
+            {% if definition %}
+                <div class="definition">
+                    <h2>Definition:</h2>
+                    <p>{{ definition }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <script>
+            document.getElementById('definitionForm').addEventListener('submit', function(e) {
+                // Prevent the default form submission
+                e.preventDefault();
+                
+                // Show loading bar
+                document.getElementById('loadingContainer').style.display = 'block';
+                
+                // Submit the form after a small delay to ensure loading bar is visible
+                setTimeout(() => {
+                    this.submit();
+                }, 100);
+            });
+        </script>
+    </body>
+</html>
