@@ -1,95 +1,97 @@
-# Installation
+# Project Overview
 
-## Python Dependencies
-This project uses pythons built-in `venv` to manage dependencies. Once the `venv` is activated, one can also just use `pip install -r requirements.txt`. 
+This project consists of three main components:
 
+1. **Frontend**: A Django web application with a Google Gemini API integration. 
+2. **Backend**: A Java microservice built with Maven and Spring Boot.
+3. **DoS Demo**: A collection of Python scripts demonstrating various Denial of Service (DoS) attack techniques.
 
-### Python Built-in `venv`
-> Make sure to be in the `django_project` directory when running venv commands
-```bash
-cd django_project
-```
+## Frontend
 
-> MacOS/Linux
-```bash
-python3 -m venv myenv
-source myenv/bin/activate
-pip install -r requirements.txt
-```
+The frontend is a Django web application located in the `Frontend` directory. It integrates with the Google Gemini API for enhanced functionality.
 
-> Windows
-```bash
-python -m venv myenv
-.\myenv\Scripts\activate
-pip install -r requirements.txt
-```
+### Setup
 
-## GoogleGemini API
-1. Set up a [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key) account and generate an API key. 
-2. create a `.env` file in the `frontend/dictionary` directory 
-3. Set the `GOOGLE_API_KEY` environment variable to their API key.
+1. Install Python dependencies using the built-in `venv`:
+   ```bash
+   cd Frontend
+   python3 -m venv myenv
+   source myenv/bin/activate  # On Windows: .\myenv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
-> note the `GOOGLE_API_KEY` must be in the `.env` file to use the app. and the API key should also be in "string" format.
+2. Set up the Google Gemini API:
+   - Create a [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key) account and generate an API key.
+   - Create a `.env` file in the `frontend/dictionary` directory.
+   - Set the `GOOGLE_API_KEY` environment variable to your API key in the `.env` file:
+     ```
+     GOOGLE_API_KEY="your_api_key_here"
+     ```
 
-Example `.env` file:
-```python
-# .env
-GOOGLE_API_KEY="your_api_key_here"
-```
+3. Start the Django server:
+   ```bash
+   cd project_230
+   python manage.py runserver
+   ```
 
-## Maven Dependencies
-- used for the Java microservice 
-> Make sure to be in the `HashTableService` directory when running maven commands
-> Make sure maven is installed
+## Backend
 
-```bash
-mvn --version
-```
-> if not installed, install maven from [here](https://maven.apache.org/download.cgi)
+The backend is a Java microservice built with Maven and Spring Boot. It is located in the `Backend/HashTableService` directory.
 
-### Start Maven Service
-```bash
-cd HashTableService
-```
-```bash
-mvn clean compile
-```
-> NOTE: make sure that the current java version is supported by the maven `pom.xml` file in the 
-```xml
-<properties>
-    <java.version>example_version</java.version>
-</properties>
-```
-> To check the current java version, run 
-```bash 
-java -version
-```
+### Setup
 
+1. Ensure Maven is installed:
+   ```bash
+   mvn --version
+   ```
+   If not installed, download Maven from [here](https://maven.apache.org/download.cgi).
 
-> Start the maven service
-```bash
-mvn spring-boot:run
-```
+2. Verify the Java version in the `pom.xml` file:
+   ```xml
+   <properties>
+       <java.version>example_version</java.version>
+   </properties>
+   ```
+   Check your current Java version with `java -version` and update the `pom.xml` if needed.
 
-# Quick Start
+3. Start the Maven service:
+   ```bash
+   cd Backend/HashTableService
+   mvn clean compile
+   mvn spring-boot:run
+   ```
 
-## Quick Commands
+## DoS Demo
 
-> Activate the python `venv`
-```bash
-cd django_project
-.\myenv\Scripts\activate
-```
+The `dos_demo` directory contains a collection of Python scripts that demonstrate various Denial of Service (DoS) attack techniques. These scripts are for educational purposes only and should be used responsibly in controlled environments.
 
-> Start the django server
-```bash
-cd project_230
-python manage.py runserver
-```
+### Setup
 
+1. Create and activate a virtual environment:
+   ```bash
+   cd dos_demo
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-> In a different Terminal, Start the maven service
-```bash
-cd HashTableService
-mvn spring-boot:run
-```
+2. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Scripts
+
+- `single_thread.py`: A single-threaded DoS script.
+- `multi_threaded.py`: A multi-threaded DoS script with improved performance and error handling.
+- `sockets.py`: A multi-threaded DoS script using raw sockets.
+- `advanced_dos.py`: An advanced multi-threaded DoS script with multiple attack methods.
+
+Refer to the `dos_demo/README.md` file for detailed usage instructions and important disclaimers.
+
+## Getting Started
+
+1. Set up and start the Frontend Django server.
+2. Set up and start the Backend Maven service.
+3. Explore the DoS demo scripts in the `dos_demo` directory.
+
+Please use the DoS demo scripts responsibly and only in authorized environments for educational purposes.
