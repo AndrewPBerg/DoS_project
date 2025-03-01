@@ -12,17 +12,14 @@ The frontend is a Django web application located in the `Frontend` directory. It
 
 ### Setup
 
-1. Install Python dependencies using the built-in `venv`:
+1. Install Python dependencies using the uv package manager:
    ```bash
    cd Frontend
-   python3 -m venv myenv
-   source myenv/bin/activate  # On Windows: .\myenv\Scripts\activate
-   pip install -r requirements.txt
+   uv run
    ```
 
 2. Set up the Google Gemini API:
-   - Create a [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key) account and generate an API key.
-   - Create a `.env` file in the `frontend/dictionary` directory.
+   - Create a [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key) account and generate an API key. - Create a `.env` file in the `frontend/dictionary` directory.
    - Set the `GOOGLE_API_KEY` environment variable to your API key in the `.env` file:
      ```
      GOOGLE_API_KEY="your_api_key_here"
@@ -67,16 +64,10 @@ The `dos_demo` directory contains a collection of Python scripts that demonstrat
 
 ### Setup
 
-1. Create and activate a virtual environment:
+1. Install dependencies using the uv package manager:
    ```bash
    cd dos_demo
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-2. Install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
+   uv run
    ```
 
 ### Scripts
