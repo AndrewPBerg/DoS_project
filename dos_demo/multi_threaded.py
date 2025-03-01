@@ -8,8 +8,8 @@ import os
 import signal
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-import multiprocessing  # Import the multiprocessing module
-from multiprocessing import Event, Manager, Value, Array  # Import Event for signaling, Manager for shared objects, Value for shared variables, Array for shared lists
+import multiprocessing
+from multiprocessing import Event, Manager, Value, Array
 
 # Configure colored logging
 try:
@@ -43,8 +43,8 @@ except ImportError:
 TARGET_URL = "http://localhost:8000/get_definition_service/?style=Shakespeare&word=get"  # Change this to your local server's port
 
 # Statistics tracking
-request_count = 0
-response_times = []
+# request_count = 0  # Removed: Now using shared Value
+# response_times = [] # Removed: Now using shared List
 summary_interval = 10  # Show summary every N requests
 lock = threading.Lock()  # Lock for thread-safe operations on shared variables
 
@@ -80,11 +80,11 @@ def get_session():
         thread_local.session = create_session()
     return thread_local.session
 
-def send_requests(stop_flag, request_count, response_times):
+def send_requests(stop_flag_value, request_count, response_times):  # Pass stop_flag_value directly
     # Get thread-local session
     session = get_session()
     
-    while not stop_flag.value:  # Check if the stop flag is set
+    while not stop_flag_value:  # Use the passed value
         try:
             start_time = time.time()
             response = session.get(TARGET_URL)
@@ -123,13 +123,14 @@ def start_process(stop_flag, request_count, response_times):
     threads = []
 
     for _ in range(NUM_THREADS):
-        thread = threading.Thread(target=send_requests, args=(stop_flag, request_count, response_times))
+        # Pass stop_flag.value, not stop_flag itself
+        thread = threading.Thread(target=send_requests, args=(stop_flag.value, request_count, response_times))
         thread.daemon = True  # Set as daemon so they will exit when the main thread exits
         thread.start()
         threads.append(thread)
 
     # Keep the process running until stop_flag is set
-    while not stop_flag.value:
+    while not stop_flag.value:  # Check stop_flag.value here too
         time.sleep(0.1)
 
 def main():
@@ -162,36 +163,31 @@ def main():
         # Set the stop flag to signal all processes to stop
         stop_flag.value = True
         
-        # Give processes a chance to terminate gracefully
-        timeout = 5  # seconds to wait for graceful termination
-        start_time = time.time()
-        
+        # More robust shutdown
         for process in processes:
-            remaining_time = timeout - (time.time() - start_time)
-            if remaining_time <= 0:
-                break
-            process.join(timeout=remaining_time)
-        
-        # Force terminate any processes that didn't exit gracefully
-        for process in processes:
-            if process.is_alive():
-                print(f"Force terminating process {process.pid}")
+            try:
+                process.join(timeout=1)  # Give processes time to exit
+            except multiprocessing.TimeoutError:
+                print(f"Process {process.pid} did not terminate in time.")
                 try:
-                    process.terminate()  # Try to terminate
+                    process.terminate()
                     process.join(0.5)    # Give it a moment to terminate
                     if process.is_alive():
                         process.kill()   # Force kill if still alive
                 except Exception as e:
-                    print(f"Error terminating process: {e}")
+                    print(f"Error terminating process {process.pid}: {e}")
 
-        # Calculate final statistics
-        with lock:
+        # Final statistics (check if response_times is not empty)
+        try:
             if response_times:
                 avg_time = statistics.mean(response_times)
                 max_time = max(response_times)
             else:
                 avg_time = 0
                 max_time = 0
+        except statistics.StatisticsError:
+            avg_time = 0
+            max_time = 0
         
         print("\n" + "="*50)
         print(f"Attack Summary:")
