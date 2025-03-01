@@ -1,13 +1,13 @@
-# DoS Demonstration Project
+# DoS Demonstration Project 🚨
 
 This directory contains a collection of Python scripts that demonstrate various Denial of Service (DoS) attack techniques. These scripts are for **educational purposes only** and should be used **responsibly** in **controlled environments**.
 
-## Scripts
+## Scripts 📜
 
 - `single_thread.py`: A single-threaded DoS script that sends continuous HTTP GET requests to a specified target URL.
 - `multi_threaded.py`: A multi-threaded DoS script with improved performance and error handling, using connection pooling, thread-local sessions, and retry strategies.
 
-## multi_threaded.py Details
+## multi_threaded.py Details 📊
 
 The `multi_threaded.py` script demonstrates an advanced multi-threaded DoS attack with several key features:
 
@@ -21,27 +21,17 @@ The `multi_threaded.py` script demonstrates an advanced multi-threaded DoS attac
 
 These techniques allow for a highly efficient and robust DoS attack, while also providing detailed insights into the attack progress and performance.
 
-## Setup
+## Setup & Usage ⚙️
 
-Refer to the root `README.md` file for detailed setup instructions, including installing the required dependencies using the uv package manager.
+[Refer to the root `README.md` file](https://github.com/AndrewPBerg/DoS_project/tree/main) for detailed setup instructions, including installing the required dependencies using the uv package manager.
 
 - You can run the following command to set up the environment and install dependencies:
    ```bash
    cd dos_demo
-   uv run
+   uv run multi_threaded.py
    ```
 
-## Usage
-
-Each script has its own usage instructions and command-line arguments. Run the scripts with the `-h` or `--help` flag to see the available options.
-
-For example:
-```bash
-python single_thread.py -h
-python multi_threaded.py -h  
-```
-
-## Disclaimer
+## Disclaimer ⚠️
 
 **This project is for educational purposes only. Launching DoS attacks against systems without explicit permission is illegal and unethical.** The scripts provided in this directory are intended to demonstrate the concepts and techniques involved in DoS attacks and should only be used in controlled environments with proper authorization.
 
