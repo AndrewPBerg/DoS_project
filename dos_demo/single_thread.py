@@ -32,7 +32,8 @@ except ImportError:
     logger = logging.getLogger()
     print("For colored logs, install colorlog: pip install colorlog")
 
-TARGET_URL = "http://127.0.0.1:8000"  # Change this to your local server's port
+# TARGET_URL = "http://127.0.0.1:8000"  # Change this to your local server's port
+TARGET_URL = "http://localhost:8000/get_definition_service/?style=Shakespeare&word=test"  # Change this to your local server's port
 
 # Statistics tracking
 request_count = 0
