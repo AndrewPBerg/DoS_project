@@ -50,7 +50,7 @@ The backend is a Java microservice built with Maven and Spring Boot. It is locat
 
 3. Start the Maven service:
    ```bash
-   cd Backend/HashTableService
+   cd Backend
    mvn clean compile
    mvn spring-boot:run
    ```
