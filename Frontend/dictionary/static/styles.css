@@ -6,11 +6,19 @@
 }
 
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    background-color: #2d78da;
+    background-color: #2d78da !important;
+}
+
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 20px;
+    width: 100%;
 }
 
 .container {
@@ -68,7 +76,7 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #0056b3 !important;
 }
 
 .definition {
@@ -131,3 +139,47 @@ button:hover {
         transform: translateX(300%);
     }
 }
+
+.qr-code {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 100;
+}
+
+.qr-code h3 {
+    color: #333333;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+.qr-code img {
+    width: 150px;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
+/* Custom styles to complement Bootstrap */
+
+/* Animation for definition appearance */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.definition-enter {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Optional custom styling for specific elements */
+.dictionary-title {
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Any additional custom styling not covered by Bootstrap */
